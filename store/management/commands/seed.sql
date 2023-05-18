@@ -1,6 +1,7 @@
 insert into
   store_collection (id, title, featured_product_id)
 values
+  (1, 'Flowers', null),
   (2, 'Grocery', null),
   (3, 'Beauty', null),
   (4, 'Cleaning', null),
@@ -60,16 +61,6 @@ values
     73.47,
     40,
     '2020-07-20 00:00:00',
-    5,
-    '-'
-  ),
-  (
-    5,
-    'Lettuce - Mini Greens, Whole',
-    'lectus in est risus auctor sed tristique in tempus sit amet sem fusce consequat nulla nisl nunc',
-    60.21,
-    56,
-    '2020-08-18 00:00:00',
     5,
     '-'
   ),
