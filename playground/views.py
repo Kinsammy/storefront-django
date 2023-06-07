@@ -1,4 +1,5 @@
 from django.core.mail import send_mail, mail_admins, BadHeaderError, EmailMessage
+
 from django.shortcuts import render
 
 from store.models import Product
@@ -39,3 +40,6 @@ def send_mail_with_file_attached(request):
     except BadHeaderError:
         pass
     return render(request, 'hello.html', {'name': 'Attached File'})
+
+
+

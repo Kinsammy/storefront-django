@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -48,6 +49,7 @@ THIRD_PARTY_APPS = [
     'debug_toolbar',
     'djoser',
     'rest_framework',
+    'templated_email',
 ]
 
 LOCAL_APPS = [
@@ -191,3 +193,9 @@ DEFAULT_FROM_EMAIL = 'from@sammybuy.com'
 ADMINS = [
     ('Sam', 'admin@sammybuy.com'),
 ]
+
+TEMPLATED_EMAIL_BACKEND = 'templated_email.backends.vanilla_django.TemplateBackend'
+
+
+# Celery
+CELERY_BROKER_URL='redis://localhost:6379/1'
