@@ -1,9 +1,8 @@
+
 from django.core.mail import send_mail, mail_admins, BadHeaderError, EmailMessage
-
 from django.shortcuts import render
-
 from store.models import Product
-
+from .tasks import notify_customers
 
 # Create your views here.
 
@@ -41,5 +40,9 @@ def send_mail_with_file_attached(request):
         pass
     return render(request, 'hello.html', {'name': 'Attached File'})
 
+
+def notify_project_customers(request):
+    notify_customers.delay('hello')
+    return render(request, 'hello.html', {'name': 'Celery File'})
 
 
