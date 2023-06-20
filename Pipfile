@@ -21,8 +21,14 @@ django-templated-mail = "*"
 django-templated-email = "*"
 redis = "*"
 celery = "*"
+flower = "*"
+model-bakery = "*"
 
 [dev-packages]
+pytest = "*"
+pytest-django = "*"
+model-bakery = "*"
+locust = "*"
 
 [requires]
 python_version = "3.10"
