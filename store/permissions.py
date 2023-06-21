@@ -13,6 +13,6 @@ class FullDjangoModelPermission(permissions.DjangoModelPermissions):
         self.perms_map['GET'] = ['%(app_label)s.add_%(model_name)s']
 
 
-class ViewCustomerHistoryPermissions(permissions.DjangoModelPermissions):
+class ViewCustomerHistoryPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perms('store.view.history')

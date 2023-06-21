@@ -3,6 +3,7 @@ from django.core.mail import send_mail, mail_admins, BadHeaderError, EmailMessag
 from django.shortcuts import render
 from store.models import Product
 from .tasks import notify_customers
+import requests
 
 # Create your views here.
 
@@ -46,3 +47,6 @@ def notify_project_customers(request):
     return render(request, 'hello.html', {'name': 'Celery File'})
 
 
+def slow_api(request):
+    requests.get('https://httpbin.org/delay/2')
+    return render(request, 'hello.html', {'name': 'Simulating a slow api'})

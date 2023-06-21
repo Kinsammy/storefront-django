@@ -5,38 +5,34 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .filters import ProductFilter
 from .pagination import DefaultPagination
 from .models import *
-from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermissions
+from .permissions import IsAdminOrReadOnly, ViewCustomerHistoryPermission
 from .serializer import *
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('images').all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ProductFilter
     pagination_class = DefaultPagination
     permission_classes = [IsAdminOrReadOnly]
-    # filter_class = ProductFilter
-    filterset_fields = {'collection_id': ['exact'],
-                        'unit_price': ['gt', 'lt']}
     search_fields = ['title', 'description']
     ordering_fields = ['unit_price', 'last_update']
 
     def get_serializer_context(self):
         return {'request': self.request}
 
-    def delete(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        if product.orderitems.count() > 0:
-            return Response({'error': 'Product cannot be deleted because it is associated with an order item.'},
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        product.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def destroy(self, request, *args, **kwargs):
+        if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
+            return Response({'error': 'Product cannot be deleted because it is associated with an order item.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        return super().destroy(request, *args, **kwargs)
 
 
 class CollectionViewSet(ModelViewSet):
@@ -64,7 +60,7 @@ class ReviewViewSet(ModelViewSet):
 
 
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer
 
 
@@ -92,18 +88,14 @@ class CustomerViewSet(ModelViewSet):
     serializer_class = CustomerSerializer
     permission_classes = [IsAdminUser]
 
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAuthenticated()]
+    @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
+    def history(self, request, pk):
+        return Response('ok')
 
-    @action(detail=True, permission_classes=[ViewCustomerHistoryPermissions])
-    def history(self):
-        return Response("Ok")
-
-    @action(detail=False, methods=['GET', 'PUT'], permission_classes=['GET', 'PUT'])
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        (customer, created) = Customer.objects.get(user_id=request.user.id)
+        customer = Customer.objects.get(
+            user_id=request.user.id)
         if request.method == 'GET':
             serializer = CustomerSerializer(customer)
             return Response(serializer.data)
@@ -138,8 +130,8 @@ class OrderViewSet(ModelViewSet):
             return UpdateOrderSerialier
         return OrderSerializer
 
-    def get_serializer_context(self):
-        return {'user_id': self.request.user.id}
+    # def get_serializer_context(self):
+    #     return {'user_id': self.request.user.id}
 
     def get_queryset(self):
         user = self.request.user
