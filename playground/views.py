@@ -1,11 +1,28 @@
-
+from django.core.cache import cache
 from django.core.mail import send_mail, mail_admins, BadHeaderError, EmailMessage
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from store.models import Product
+from rest_framework.views import APIView
 from .tasks import notify_customers
 import requests
 
 # Create your views here.
+class ClassBasedCache(APIView):
+    @method_decorator(cache_page(5 * 60))
+    def get(self, request):
+        response = requests.get('https://httpbin.org/delay/2')
+        data = response.json()
+        return render(request, 'hello.html', {'name': data})
+
+
+@cache_page(5 * 60)
+def function_based_cache(request):
+    response = requests.get('https://httpbin.org/delay/2')
+    data = response.json()
+    return render(request, 'hello.html', {'name': data})
+
 
 def say_hello(request):
     queryset = Product.objects.filter(inventory__lt=10).filter(unit_price__lt=20)
@@ -50,3 +67,13 @@ def notify_project_customers(request):
 def slow_api(request):
     requests.get('https://httpbin.org/delay/2')
     return render(request, 'hello.html', {'name': 'Simulating a slow api'})
+
+def low_level_cache_api(request):
+    key = 'httpbin_result'
+    if cache.get(key) is None:
+        response =  requests.get('https://httpbin.org/delay/2')
+        data = response.json()
+        cache.set(key,data)
+    return render(request, 'hello.html', {'name': cache.get(key)})
+
+
