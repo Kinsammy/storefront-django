@@ -51,7 +51,7 @@ geventhttpclient==2.0.9
 gprof2dot==2022.7.29
 greenlet==2.0.2
 gunicorn
-humanize==4.7.0
+humanize
 idna==3.4
 iniconfig==2.0.0
 itsdangerous==2.1.2
