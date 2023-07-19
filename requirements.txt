@@ -36,7 +36,7 @@ djangorestframework
 djangorestframework-simplejwt
 djoser
 docker
-docker-compos
+docker-compose=1.25.5
 dockerpty==0.4.1
 docopt==0.6.2
 drf-nested-routers
