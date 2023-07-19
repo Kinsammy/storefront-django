@@ -11,5 +11,6 @@ urlpatterns = [
     path('slow-api/', views.slow_api),
     path('cache_api/', views.low_level_cache_api),
     path('function_cache/', views.function_based_cache),
-    path('class_cache/', views.ClassBasedCache.as_view())
+    path('class_cache/', views.ClassBasedCache.as_view()),
+    path('logging/', views.LggingClass.as_view()),
 ]

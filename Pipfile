@@ -25,6 +25,9 @@ flower = "*"
 model-bakery = "*"
 django-silk = "*"
 django-redis = "*"
+whitenoise = "*"
+gunicorn = "*"
+awsebcli = "*"
 
 [dev-packages]
 pytest = "*"
